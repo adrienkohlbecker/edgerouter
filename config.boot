@@ -157,21 +157,6 @@ port-forward {
     }
     wan-interface eth1.200
 }
-protocols {
-    igmp-proxy {
-        disable-quickleave
-        interface eth0 {
-            alt-subnet 0.0.0.0/0
-            role downstream
-            threshold 1
-        }
-        interface eth2 {
-            alt-subnet 0.0.0.0/0
-            role downstream
-            threshold 1
-        }
-    }
-}
 service {
     dhcp-server {
         disabled false
