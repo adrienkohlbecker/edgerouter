@@ -158,6 +158,15 @@ port-forward {
         original-port 80
         protocol tcp
     }
+    rule 3 {
+        description Plex
+        forward-to {
+            address 10.100.0.11
+            port 32400
+        }
+        original-port 32400
+        protocol tcp
+    }
     wan-interface eth1.200
 }
 protocols {
