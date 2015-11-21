@@ -77,7 +77,7 @@ firewall {
 }
 interfaces {
     ethernet eth0 {
-        address 10.0.0.1/24
+        address 10.123.0.1/24
         description LAN1
         duplex auto
         speed auto
@@ -166,15 +166,15 @@ service {
         hostfile-update disable
         shared-network-name LAN1 {
             authoritative disable
-            subnet 10.0.0.0/24 {
-                default-router 10.0.0.1
-                dns-server 10.0.0.1
+            subnet 10.123.0.0/24 {
+                default-router 10.123.0.1
+                dns-server 10.123.0.1
                 lease 86400
-                start 10.0.0.100 {
-                    stop 10.0.0.200
+                start 10.123.0.100 {
+                    stop 10.123.0.200
                 }
                 static-mapping supermicro-ipmi {
-                    ip-address 10.0.0.10
+                    ip-address 10.123.0.10
                     mac-address 00:25:90:86:5a:ae
                 }
             }
