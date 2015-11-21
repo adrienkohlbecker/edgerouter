@@ -173,10 +173,6 @@ service {
                 start 10.123.0.100 {
                     stop 10.123.0.200
                 }
-                static-mapping supermicro-ipmi {
-                    ip-address 10.123.0.10
-                    mac-address 00:25:90:86:5a:ae
-                }
                 static-mapping hypervisor-eth0 {
                     ip-address 10.123.0.11
                     mac-address 00:25:90:86:77:88
@@ -184,6 +180,10 @@ service {
                 static-mapping hypervisor-eth1 {
                     ip-address 10.123.0.12
                     mac-address 00:25:90:86:77:89
+                }
+                static-mapping hypervisor-ipmi {
+                    ip-address 10.123.0.10
+                    mac-address 00:25:90:86:5a:ae
                 }
             }
         }
