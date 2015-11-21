@@ -197,6 +197,10 @@ service {
                     ip-address 10.123.0.10
                     mac-address 00:25:90:86:5a:ae
                 }
+                static-mapping switch {
+                    ip-address 10.123.0.2
+                    mac-address 38:63:bb:ed:bd:80
+                }
             }
         }
     }
