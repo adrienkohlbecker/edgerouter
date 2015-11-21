@@ -211,6 +211,10 @@ service {
                 start 10.0.0.100 {
                     stop 10.0.0.200
                 }
+                static-mapping supermicro-ipmi {
+                    ip-address 10.0.0.10
+                    mac-address 00:25:90:86:5a:ae
+                }
             }
         }
         shared-network-name LAN2 {
