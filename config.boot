@@ -105,6 +105,12 @@ interfaces {
             }
         }
     }
+    ethernet eth2 {
+        address 10.123.1.1/24
+        description LAN2
+        duplex auto
+        speed auto
+    }
     loopback lo {
     }
 }
@@ -112,6 +118,7 @@ port-forward {
     auto-firewall enable
     hairpin-nat enable
     lan-interface eth0
+    lan-interface eth2
     rule 1 {
         description HTTPS
         forward-to {
@@ -158,6 +165,11 @@ protocols {
             role downstream
             threshold 1
         }
+        interface eth2 {
+            alt-subnet 0.0.0.0/0
+            role downstream
+            threshold 1
+        }
     }
 }
 service {
@@ -192,6 +204,7 @@ service {
         forwarding {
             cache-size 1000
             listen-on eth0
+            listen-on eth2
         }
     }
     gui {
@@ -212,6 +225,7 @@ service {
     }
     upnp2 {
         listen-on eth0
+        listen-on eth2
         nat-pmp enable
         secure-mode disable
         wan eth1
