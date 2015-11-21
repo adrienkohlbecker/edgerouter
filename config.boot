@@ -167,6 +167,15 @@ port-forward {
         original-port 32400
         protocol tcp
     }
+    rule 4 {
+        description OpenVPN
+        forward-to {
+            address 10.100.0.11
+            port 1194
+        }
+        original-port 1194
+        protocol udp
+    }
     wan-interface eth1.200
 }
 protocols {
