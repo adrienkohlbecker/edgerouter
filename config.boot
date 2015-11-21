@@ -135,6 +135,31 @@ interfaces {
     loopback lo {
     }
 }
+port-forward {
+    auto-firewall enable
+    hairpin-nat enable
+    lan-interface eth0
+    lan-interface eth1
+    rule 1 {
+        description HTTPS
+        forward-to {
+            address 10.100.0.11
+            port 443
+        }
+        original-port 443
+        protocol tcp
+    }
+    rule 2 {
+        description HTTP
+        forward-to {
+            address 10.100.0.11
+            port 80
+        }
+        original-port 80
+        protocol tcp
+    }
+    wan-interface eth1.200
+}
 protocols {
     igmp-proxy {
         disable-quickleave
