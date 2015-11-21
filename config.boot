@@ -116,6 +116,14 @@ interfaces {
                 default-route-distance 210
                 name-server update
             }
+            firewall {
+                in {
+                    name WAN_IN
+                }
+                local {
+                    name WAN_LOCAL
+                }
+            }
         }
     }
     ethernet eth2 {
