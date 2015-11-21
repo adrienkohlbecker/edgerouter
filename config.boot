@@ -228,7 +228,7 @@ service {
         listen-on eth2
         nat-pmp enable
         secure-mode disable
-        wan eth1
+        wan eth1.200
     }
 }
 system {
