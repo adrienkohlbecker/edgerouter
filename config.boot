@@ -76,15 +76,6 @@ firewall {
     syn-cookies enable
 }
 interfaces {
-    bridge br0 {
-        aging 300
-        bridged-conntrack disable
-        hello-time 2
-        max-age 20
-        priority 32768
-        promiscuous disable
-        stp false
-    }
     ethernet eth0 {
         address 10.0.0.1/24
         description LAN1
@@ -95,18 +86,6 @@ interfaces {
         description WAN
         duplex auto
         speed auto
-        vif 10 {
-            bridge-group {
-                bridge br0
-            }
-            description Administration
-        }
-        vif 100 {
-            bridge-group {
-                bridge br0
-            }
-            description TV
-        }
         vif 200 {
             address dhcp
             description Internet
@@ -126,12 +105,6 @@ interfaces {
             }
         }
     }
-    ethernet eth2 {
-        address 10.0.1.1/24
-        description LAN2
-        duplex auto
-        speed auto
-    }
     loopback lo {
     }
 }
@@ -139,7 +112,6 @@ port-forward {
     auto-firewall enable
     hairpin-nat enable
     lan-interface eth0
-    lan-interface eth1
     rule 1 {
         description HTTPS
         forward-to {
@@ -181,17 +153,7 @@ port-forward {
 protocols {
     igmp-proxy {
         disable-quickleave
-        interface br0 {
-            alt-subnet 0.0.0.0/0
-            role upstream
-            threshold 1
-        }
         interface eth0 {
-            alt-subnet 0.0.0.0/0
-            role downstream
-            threshold 1
-        }
-        interface eth2 {
             alt-subnet 0.0.0.0/0
             role downstream
             threshold 1
@@ -217,22 +179,10 @@ service {
                 }
             }
         }
-        shared-network-name LAN2 {
-            authoritative enable
-            subnet 10.0.1.0/24 {
-                default-router 10.0.1.1
-                dns-server 10.0.1.1
-                lease 86400
-                start 10.0.1.21 {
-                    stop 10.0.1.200
-                }
-            }
-        }
     }
     dns {
         forwarding {
             cache-size 1000
-            listen-on eth2
             listen-on eth0
         }
     }
@@ -254,7 +204,6 @@ service {
     }
     upnp2 {
         listen-on eth0
-        listen-on eth2
         nat-pmp enable
         secure-mode disable
         wan eth1
