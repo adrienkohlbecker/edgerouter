@@ -122,7 +122,7 @@ port-forward {
     rule 1 {
         description HTTPS
         forward-to {
-            address 10.100.0.11
+            address 10.123.0.11
             port 443
         }
         original-port 443
@@ -131,7 +131,7 @@ port-forward {
     rule 2 {
         description HTTP
         forward-to {
-            address 10.100.0.11
+            address 10.123.0.11
             port 80
         }
         original-port 80
@@ -140,7 +140,7 @@ port-forward {
     rule 3 {
         description Plex
         forward-to {
-            address 10.100.0.11
+            address 10.123.0.11
             port 32400
         }
         original-port 32400
@@ -149,7 +149,7 @@ port-forward {
     rule 4 {
         description OpenVPN
         forward-to {
-            address 10.100.0.11
+            address 10.123.0.11
             port 1194
         }
         original-port 1194
