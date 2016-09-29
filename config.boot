@@ -186,6 +186,14 @@ service {
                     ip-address 10.123.0.2
                     mac-address 38:63:bb:ed:bd:80
                 }
+                static-mapping meraki {
+                    ip-address 10.123.0.3
+                    mac-address 00:18:0a:7b:2b:7e
+                }
+                static-mapping samsung-M2675FN {
+                    ip-address 10.123.0.4
+                    mac-address 30:cd:a7:b8:15:be
+                }
             }
         }
     }
