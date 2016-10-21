@@ -241,6 +241,7 @@ service {
                 }
             }
         }
+        use-dnsmasq disable
     }
     dns {
         forwarding {
@@ -250,7 +251,9 @@ service {
         }
     }
     gui {
+        http-port 80
         https-port 443
+        older-ciphers disable
     }
     mdns {
         reflector
@@ -301,7 +304,14 @@ system {
         }
     }
     offload {
+        hwnat disable
         ipv4 {
+            forwarding enable
+            gre enable
+            pppoe disable
+            vlan enable
+        }
+        ipv6 {
             forwarding enable
             pppoe disable
             vlan enable
@@ -342,5 +352,5 @@ system {
 
 
 /* Warning: Do not remove the following line. */
-/* === vyatta-config-version: "config-management@1:conntrack@1:cron@1:dhcp-relay@1:dhcp-server@4:firewall@5:ipsec@4:nat@3:qos@1:quagga@2:system@4:ubnt-pptp@1:ubnt-util@1:vrrp@1:webgui@1:webproxy@1:zone-policy@1" === */
-/* Release version: v1.7.0.4783374.150622.1534 */
+/* === vyatta-config-version: "config-management@1:conntrack@1:cron@1:dhcp-relay@1:dhcp-server@4:firewall@5:ipsec@5:nat@3:qos@1:quagga@2:system@4:ubnt-pptp@1:ubnt-util@1:vrrp@1:webgui@1:webproxy@1:zone-policy@1" === */
+/* Release version: v1.9.0.4901118.160804.1131 */
