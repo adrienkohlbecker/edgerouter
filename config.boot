@@ -183,7 +183,10 @@ service {
             authoritative disable
             subnet 10.123.0.0/24 {
                 default-router 10.123.0.1
-                dns-server 10.123.0.1
+                dns-server 8.8.8.8
+                dns-server 8.8.4.4
+                dns-server 208.67.222.222
+                dns-server 208.67.220.220
                 lease 86400
                 start 10.123.0.100 {
                     stop 10.123.0.200
@@ -261,6 +264,8 @@ system {
     }
     name-server 8.8.8.8
     name-server 8.8.4.4
+    name-server 208.67.222.222
+    name-server 208.67.220.220
     ntp {
         server 0.ubnt.pool.ntp.org {
         }
