@@ -155,6 +155,24 @@ port-forward {
         original-port 1194
         protocol udp
     }
+    rule 5 {
+        description "Gitlab SSH"
+        forward-to {
+            address 10.123.0.11
+            port 2222
+        }
+        original-port 2222
+        protocol tcp
+    }
+    rule 6 {
+        description SFTP
+        forward-to {
+            address 10.123.0.11
+            port 2223
+        }
+        original-port 2223
+        protocol tcp
+    }
     wan-interface eth1.200
 }
 service {
