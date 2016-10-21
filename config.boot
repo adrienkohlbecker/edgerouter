@@ -203,9 +203,17 @@ service {
                     ip-address 10.123.0.10
                     mac-address 00:25:90:86:5a:ae
                 }
-                static-mapping switch {
-                    ip-address 10.123.0.2
-                    mac-address 38:63:bb:ed:bd:80
+                static-mapping lg-g5 {
+                    ip-address 10.123.0.31
+                    mac-address 5c:70:a3:60:51:38
+                }
+                static-mapping mbp-ethernet {
+                    ip-address 10.123.0.22
+                    mac-address 00:e0:1b:6f:f8:44
+                }
+                static-mapping mbp-wifi {
+                    ip-address 10.123.0.21
+                    mac-address a4:5e:60:ca:20:df
                 }
                 static-mapping meraki {
                     ip-address 10.123.0.3
@@ -214,6 +222,22 @@ service {
                 static-mapping samsung-M2675FN {
                     ip-address 10.123.0.4
                     mac-address 30:cd:a7:b8:15:be
+                }
+                static-mapping sonos-bridge {
+                    ip-address 10.123.0.41
+                    mac-address 00:0e:58:19:4e:be
+                }
+                static-mapping sonos-play1 {
+                    ip-address 10.123.0.43
+                    mac-address 00:0e:58:c9:41:dc
+                }
+                static-mapping sonos-play5 {
+                    ip-address 10.123.0.42
+                    mac-address 00:0e:58:8e:8e:50
+                }
+                static-mapping switch {
+                    ip-address 10.123.0.2
+                    mac-address 38:63:bb:ed:bd:80
                 }
             }
         }
