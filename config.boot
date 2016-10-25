@@ -5,63 +5,152 @@ firewall {
     ipv6-src-route disable
     ip-src-route disable
     log-martians enable
-    name WAN_IN {
+
+    name ALLOW_ALL {
+        default-action accept
+        description "Allow all, drop invalid"
+        rule 1 {
+            action accept
+            description "Allow established & related"
+            state {
+                established enable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            log enable
+            description "Drop invalid"
+            state {
+                invalid enable
+            }
+        }
+    }
+
+    name ALLOW_EST_DROP_INVALID {
         default-action drop
-        description "packets from Internet to LAN"
+        description "Allow established & related, drop invalid"
         enable-default-log
         rule 1 {
             action accept
-            description "allow established sessions"
-            log disable
-            protocol all
+            description "Allow established & related"
             state {
                 established enable
-                invalid disable
-                new disable
                 related enable
             }
         }
         rule 2 {
             action drop
-            description "drop invalid state"
-            log disable
-            protocol all
+            log enable
+            description "Drop invalid"
             state {
-                established disable
                 invalid enable
-                new disable
-                related disable
             }
         }
     }
-    name WAN_LOCAL {
+
+
+    name ACCESS_ROUTER_MGMT {
         default-action drop
-        description "packets from Internet to the router"
+        enable-default-log
+        rule 100 {
+            action accept
+            log enable
+            description "Allow ping"
+            protocol icmp
+        }
+        rule 600 {
+            action accept
+            log enable
+            description "Allow DNS"
+            destination {
+                port 53
+            }
+            protocol tcp_udp
+        }
+        rule 700 {
+            action accept
+            log enable
+            description "Allow DHCP"
+            destination {
+                port 67,68
+            }
+            protocol udp
+        }
+        rule 800 {
+            action accept
+            description "Allow SSH"
+            destination {
+                port 22
+            }
+            log enable
+            protocol tcp
+        }
         rule 1 {
             action accept
-            description "allow established session to the router"
-            log disable
-            protocol all
+            description "Allow established & related"
             state {
                 established enable
-                invalid disable
-                new disable
                 related enable
             }
         }
         rule 2 {
             action drop
-            description "drop invalid state"
-            log disable
-            protocol all
+            log enable
+            description "Drop invalid"
             state {
-                established disable
                 invalid enable
-                new disable
-                related disable
             }
         }
     }
+
+
+    name ACCESS_ROUTER {
+        default-action drop
+        enable-default-log
+        rule 100 {
+            action accept
+            log enable
+            description "Allow ping"
+            protocol icmp
+        }
+        rule 600 {
+            action accept
+            log enable
+            description "Allow DNS"
+            destination {
+                port 53
+            }
+            protocol tcp_udp
+        }
+        rule 700 {
+            action accept
+            log enable
+            description "Allow DHCP"
+            destination {
+                port 67,68
+            }
+            protocol udp
+        }
+        rule 1 {
+            action accept
+            description "Allow established & related"
+            state {
+                established enable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            log enable
+            description "Drop invalid"
+            state {
+                invalid enable
+            }
+        }
+    }
+
+
     options {
         mss-clamp {
             interface-type pppoe
@@ -117,10 +206,10 @@ interfaces {
             }
             firewall {
                 in {
-                    name WAN_IN
+                    name ALLOW_EST_DROP_INVALID
                 }
                 local {
-                    name WAN_LOCAL
+                    name ALLOW_EST_DROP_INVALID
                 }
             }
         }
