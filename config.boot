@@ -78,9 +78,29 @@ firewall {
 interfaces {
     ethernet eth0 {
         address 10.123.0.1/24
-        description LAN1
+        description LAN
         duplex auto
         speed auto
+        vif 10 {
+            address 10.123.10.1/24
+            description LAN_10_MGMT
+            mtu 1500
+        }
+        vif 20 {
+            address 10.123.20.1/24
+            description LAN_20_PRIVATE
+            mtu 1500
+        }
+        vif 30 {
+            address 10.123.30.1/24
+            description LAN_30_GUEST
+            mtu 1500
+        }
+        vif 40 {
+            address 10.123.40.1/24
+            description LAN_40_DMZ
+            mtu 1500
+        }
     }
     ethernet eth1 {
         description WAN
@@ -108,6 +128,7 @@ interfaces {
     ethernet eth2 {
         address 10.123.1.1/24
         description LAN2
+        disable
         duplex auto
         speed auto
     }
@@ -199,45 +220,101 @@ service {
                     ip-address 10.123.0.12
                     mac-address 00:25:90:86:77:89
                 }
-                static-mapping hypervisor-ipmi {
-                    ip-address 10.123.0.10
-                    mac-address 00:25:90:86:5a:ae
-                }
-                static-mapping lg-g5 {
-                    ip-address 10.123.0.31
-                    mac-address 5c:70:a3:60:51:38
-                }
-                static-mapping mbp-ethernet {
-                    ip-address 10.123.0.22
-                    mac-address 00:e0:1b:6f:f8:44
-                }
-                static-mapping mbp-wifi {
-                    ip-address 10.123.0.21
-                    mac-address a4:5e:60:ca:20:df
-                }
-                static-mapping meraki {
-                    ip-address 10.123.0.3
-                    mac-address 00:18:0a:7b:2b:7e
-                }
-                static-mapping samsung-M2675FN {
-                    ip-address 10.123.0.4
-                    mac-address 30:cd:a7:b8:15:be
-                }
-                static-mapping sonos-bridge {
-                    ip-address 10.123.0.41
-                    mac-address 00:0e:58:19:4e:be
-                }
-                static-mapping sonos-play1 {
-                    ip-address 10.123.0.43
-                    mac-address 00:0e:58:c9:41:dc
-                }
-                static-mapping sonos-play5 {
-                    ip-address 10.123.0.42
-                    mac-address 00:0e:58:8e:8e:50
+            }
+        }
+        shared-network-name LAN_10_MGMT {
+            authoritative disable
+            subnet 10.123.10.0/24 {
+                default-router 10.123.10.1
+                dns-server 8.8.8.8
+                dns-server 8.8.4.4
+                dns-server 208.67.222.222
+                dns-server 208.67.220.220
+                lease 86400
+                start 10.123.10.100 {
+                    stop 10.123.10.200
                 }
                 static-mapping switch {
-                    ip-address 10.123.0.2
+                    ip-address 10.123.10.2
                     mac-address 38:63:bb:ed:bd:80
+                }
+                static-mapping meraki {
+                    ip-address 10.123.10.3
+                    mac-address 00:18:0a:7b:2b:7e
+                }
+                static-mapping hypervisor-ipmi {
+                    ip-address 10.123.10.10
+                    mac-address 00:25:90:86:5a:ae
+                }
+            }
+        }
+        shared-network-name LAN_20_PRIVATE {
+            authoritative disable
+            subnet 10.123.20.0/24 {
+                default-router 10.123.20.1
+                dns-server 8.8.8.8
+                dns-server 8.8.4.4
+                dns-server 208.67.222.222
+                dns-server 208.67.220.220
+                lease 86400
+                start 10.123.20.100 {
+                    stop 10.123.20.200
+                }
+                static-mapping mbp-wifi {
+                    ip-address 10.123.20.21
+                    mac-address a4:5e:60:ca:20:df
+                }
+                static-mapping mbp-ethernet {
+                    ip-address 10.123.20.22
+                    mac-address 00:e0:1b:6f:f8:44
+                }
+                static-mapping lg-g5 {
+                    ip-address 10.123.20.31
+                    mac-address 5c:70:a3:60:51:38
+                }
+                static-mapping sonos-bridge {
+                    ip-address 10.123.20.41
+                    mac-address 00:0e:58:19:4e:be
+                }
+                static-mapping sonos-play5 {
+                    ip-address 10.123.20.42
+                    mac-address 00:0e:58:8e:8e:50
+                }
+                static-mapping sonos-play1 {
+                    ip-address 10.123.20.43
+                    mac-address 00:0e:58:c9:41:dc
+                }
+            }
+        }
+        shared-network-name LAN_30_GUEST {
+            authoritative disable
+            subnet 10.123.30.0/24 {
+                default-router 10.123.30.1
+                dns-server 8.8.8.8
+                dns-server 8.8.4.4
+                dns-server 208.67.222.222
+                dns-server 208.67.220.220
+                lease 86400
+                start 10.123.30.100 {
+                    stop 10.123.30.200
+                }
+                static-mapping printer {
+                    ip-address 10.123.30.4
+                    mac-address 30:cd:a7:b8:15:be
+                }
+            }
+        }
+        shared-network-name LAN_40_DMZ {
+            authoritative disable
+            subnet 10.123.40.0/24 {
+                default-router 10.123.40.1
+                dns-server 8.8.8.8
+                dns-server 8.8.4.4
+                dns-server 208.67.222.222
+                dns-server 208.67.220.220
+                lease 86400
+                start 10.123.40.100 {
+                    stop 10.123.40.200
                 }
             }
         }
