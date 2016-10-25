@@ -324,6 +324,10 @@ service {
         forwarding {
             cache-size 1000
             listen-on eth0
+            listen-on eth0.10
+            listen-on eth0.20
+            listen-on eth0.30
+            listen-on eth0.40
             listen-on eth2
         }
     }
@@ -347,6 +351,10 @@ service {
     }
     upnp2 {
         listen-on eth0
+        listen-on eth0.10
+        listen-on eth0.20
+        listen-on eth0.30
+        listen-on eth0.40
         listen-on eth2
         nat-pmp enable
         secure-mode disable
