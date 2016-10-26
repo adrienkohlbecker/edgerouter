@@ -109,6 +109,8 @@ firewall {
         }
         rule 100 {
             action accept
+            description "Allow ICMP"
+            log disable
             protocol icmp
         }
         rule 200 {
@@ -819,7 +821,7 @@ zone-policy {
         }
         from LAN_50_VPN {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_NETWORKING_AND_MGMT
             }
         }
         from WAN {
