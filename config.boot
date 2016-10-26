@@ -536,6 +536,9 @@ service {
         port 22
         protocol-version v2
     }
+    ubnt-discover {
+        disable
+    }
     upnp2 {
         listen-on eth0
         listen-on eth0.10
@@ -557,7 +560,9 @@ system {
         user ubnt {
             authentication {
                 encrypted-password $6$OaN36XY5R$SUDGqjVH1CxGhf3GtfkUJk3hS1mI5S6gTHAsvqz8ScxmzLuZeKABKIV4mILA1QJubmy1y3Rk.O936VOmynPyh1
+                plaintext-password ""
             }
+            full-name ""
             level admin
         }
     }
@@ -615,7 +620,7 @@ system {
             }
         }
     }
-    time-zone Europe/Paris
+    time-zone UTC
     traffic-analysis {
         dpi enable
         export enable
