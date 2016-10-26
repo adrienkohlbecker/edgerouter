@@ -5,152 +5,61 @@ firewall {
     ipv6-src-route disable
     ip-src-route disable
     log-martians enable
-
-    name ALLOW_ALL {
+    name ACCEPT_ALL {
         default-action accept
-        description "Allow all, drop invalid"
         rule 1 {
             action accept
-            description "Allow established & related"
+            description "Allow established / related"
+            log disable
+            protocol all
             state {
                 established enable
+                invalid disable
+                new disable
                 related enable
             }
         }
         rule 2 {
             action drop
-            log enable
             description "Drop invalid"
+            log enable
+            protocol all
             state {
+                established disable
                 invalid enable
+                new disable
+                related disable
             }
         }
     }
-
-    name ALLOW_EST_DROP_INVALID {
-        default-action drop
-        description "Allow established & related, drop invalid"
-        enable-default-log
-        rule 1 {
-            action accept
-            description "Allow established & related"
-            state {
-                established enable
-                related enable
-            }
-        }
-        rule 2 {
-            action drop
-            log enable
-            description "Drop invalid"
-            state {
-                invalid enable
-            }
-        }
-    }
-
-
-    name ACCESS_ROUTER_MGMT {
+    name DROP_EXCEPT_ESTABLISHED {
         default-action drop
         enable-default-log
-        rule 100 {
-            action accept
-            log enable
-            description "Allow ping"
-            protocol icmp
-        }
-        rule 600 {
-            action accept
-            log enable
-            description "Allow DNS"
-            destination {
-                port 53
-            }
-            protocol tcp_udp
-        }
-        rule 700 {
-            action accept
-            log enable
-            description "Allow DHCP"
-            destination {
-                port 67,68
-            }
-            protocol udp
-        }
-        rule 800 {
-            action accept
-            description "Allow SSH"
-            destination {
-                port 22
-            }
-            log enable
-            protocol tcp
-        }
         rule 1 {
             action accept
-            description "Allow established & related"
+            description "Allow established / related"
+            log disable
+            protocol all
             state {
                 established enable
+                invalid disable
+                new disable
                 related enable
             }
         }
         rule 2 {
             action drop
+            description "Drop invalid state"
             log enable
-            description "Drop invalid"
+            protocol all
             state {
+                established disable
                 invalid enable
+                new disable
+                related disable
             }
         }
     }
-
-
-    name ACCESS_ROUTER {
-        default-action drop
-        enable-default-log
-        rule 100 {
-            action accept
-            log enable
-            description "Allow ping"
-            protocol icmp
-        }
-        rule 600 {
-            action accept
-            log enable
-            description "Allow DNS"
-            destination {
-                port 53
-            }
-            protocol tcp_udp
-        }
-        rule 700 {
-            action accept
-            log enable
-            description "Allow DHCP"
-            destination {
-                port 67,68
-            }
-            protocol udp
-        }
-        rule 1 {
-            action accept
-            description "Allow established & related"
-            state {
-                established enable
-                related enable
-            }
-        }
-        rule 2 {
-            action drop
-            log enable
-            description "Drop invalid"
-            state {
-                invalid enable
-            }
-        }
-    }
-
-
     options {
         mss-clamp {
             interface-type pppoe
@@ -203,14 +112,6 @@ interfaces {
                 default-route update
                 default-route-distance 210
                 name-server update
-            }
-            firewall {
-                in {
-                    name ALLOW_EST_DROP_INVALID
-                }
-                local {
-                    name ALLOW_EST_DROP_INVALID
-                }
             }
         }
     }
@@ -521,6 +422,182 @@ system {
     traffic-analysis {
         dpi enable
         export enable
+    }
+}
+zone-policy {
+    zone LAN_10_MGMT {
+        default-action drop
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        interface eth0.10
+    }
+    zone LAN_20_PRIVATE {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        interface eth0.20
+    }
+    zone LAN_30_GUEST {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        interface eth0.30
+    }
+    zone LAN_40_DMZ {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        interface eth0.40
+    }
+    zone LOCAL {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        local-zone
+    }
+    zone WAN {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        interface eth1.200
     }
 }
 
