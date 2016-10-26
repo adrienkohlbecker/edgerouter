@@ -60,6 +60,85 @@ firewall {
             }
         }
     }
+    name WAN_TO_DMZ {
+        default-action drop
+        description ""
+        enable-default-log
+        rule 10 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 20 {
+            action drop
+            description "Drop invalid"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 30 {
+            action accept
+            description "Allow HTTP"
+            destination {
+                address 10.123.40.11
+                port 80,443
+            }
+            log disable
+            protocol tcp
+        }
+        rule 40 {
+            action accept
+            description "Allow Plex"
+            destination {
+                address 10.123.40.11
+                port 32400
+            }
+            log disable
+            protocol tcp
+        }
+        rule 41 {
+            action accept
+            description "Allow Gitlab SSH"
+            destination {
+                address 10.123.40.11
+                port 2222
+            }
+            log disable
+            protocol tcp
+        }
+        rule 42 {
+            action accept
+            description "Allow SFTP"
+            destination {
+                address 10.123.40.11
+                port 2223
+            }
+            log disable
+            protocol tcp
+        }
+        rule 43 {
+            action accept
+            description "Allow OpenVPN"
+            destination {
+                address 10.123.40.11
+                port 1194
+            }
+            log disable
+            protocol udp
+        }
+    }
     options {
         mss-clamp {
             interface-type pppoe
@@ -126,14 +205,16 @@ interfaces {
     }
 }
 port-forward {
-    auto-firewall enable
+    auto-firewall disable
     hairpin-nat enable
-    lan-interface eth0
-    lan-interface eth2
+    lan-interface eth0.10
+    lan-interface eth0.20
+    lan-interface eth0.30
+    lan-interface eth0.40
     rule 1 {
         description HTTPS
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 443
         }
         original-port 443
@@ -142,7 +223,7 @@ port-forward {
     rule 2 {
         description HTTP
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 80
         }
         original-port 80
@@ -151,7 +232,7 @@ port-forward {
     rule 3 {
         description Plex
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 32400
         }
         original-port 32400
@@ -160,7 +241,7 @@ port-forward {
     rule 4 {
         description OpenVPN
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 1194
         }
         original-port 1194
@@ -169,7 +250,7 @@ port-forward {
     rule 5 {
         description "Gitlab SSH"
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 2222
         }
         original-port 2222
@@ -178,7 +259,7 @@ port-forward {
     rule 6 {
         description SFTP
         forward-to {
-            address 10.123.0.11
+            address 10.123.40.11
             port 2223
         }
         original-port 2223
@@ -190,28 +271,6 @@ service {
     dhcp-server {
         disabled false
         hostfile-update disable
-        shared-network-name LAN1 {
-            authoritative disable
-            subnet 10.123.0.0/24 {
-                default-router 10.123.0.1
-                dns-server 8.8.8.8
-                dns-server 8.8.4.4
-                dns-server 208.67.222.222
-                dns-server 208.67.220.220
-                lease 86400
-                start 10.123.0.100 {
-                    stop 10.123.0.200
-                }
-                static-mapping hypervisor-eth0 {
-                    ip-address 10.123.0.11
-                    mac-address 00:25:90:86:77:88
-                }
-                static-mapping hypervisor-eth1 {
-                    ip-address 10.123.0.12
-                    mac-address 00:25:90:86:77:89
-                }
-            }
-        }
         shared-network-name LAN_10_MGMT {
             authoritative disable
             subnet 10.123.10.0/24 {
@@ -224,17 +283,17 @@ service {
                 start 10.123.10.100 {
                     stop 10.123.10.200
                 }
-                static-mapping switch {
-                    ip-address 10.123.10.2
-                    mac-address 38:63:bb:ed:bd:80
+                static-mapping hypervisor-ipmi {
+                    ip-address 10.123.10.10
+                    mac-address 00:25:90:86:5a:ae
                 }
                 static-mapping meraki {
                     ip-address 10.123.10.3
                     mac-address 00:18:0a:7b:2b:7e
                 }
-                static-mapping hypervisor-ipmi {
-                    ip-address 10.123.10.10
-                    mac-address 00:25:90:86:5a:ae
+                static-mapping switch {
+                    ip-address 10.123.10.2
+                    mac-address 38:63:bb:ed:bd:80
                 }
             }
         }
@@ -250,29 +309,29 @@ service {
                 start 10.123.20.100 {
                     stop 10.123.20.200
                 }
-                static-mapping mbp-wifi {
-                    ip-address 10.123.20.21
-                    mac-address a4:5e:60:ca:20:df
+                static-mapping lg-g5 {
+                    ip-address 10.123.20.31
+                    mac-address 5c:70:a3:60:51:38
                 }
                 static-mapping mbp-ethernet {
                     ip-address 10.123.20.22
                     mac-address 00:e0:1b:6f:f8:44
                 }
-                static-mapping lg-g5 {
-                    ip-address 10.123.20.31
-                    mac-address 5c:70:a3:60:51:38
+                static-mapping mbp-wifi {
+                    ip-address 10.123.20.21
+                    mac-address a4:5e:60:ca:20:df
                 }
                 static-mapping sonos-bridge {
                     ip-address 10.123.20.41
                     mac-address 00:0e:58:19:4e:be
                 }
-                static-mapping sonos-play5 {
-                    ip-address 10.123.20.42
-                    mac-address 00:0e:58:8e:8e:50
-                }
                 static-mapping sonos-play1 {
                     ip-address 10.123.20.43
                     mac-address 00:0e:58:c9:41:dc
+                }
+                static-mapping sonos-play5 {
+                    ip-address 10.123.20.42
+                    mac-address 00:0e:58:8e:8e:50
                 }
             }
         }
@@ -306,6 +365,14 @@ service {
                 start 10.123.40.100 {
                     stop 10.123.40.200
                 }
+                static-mapping hypervisor-eth0 {
+                    ip-address 10.123.40.11
+                    mac-address 00:25:90:86:77:88
+                }
+                static-mapping hypervisor-eth1 {
+                    ip-address 10.123.40.12
+                    mac-address 00:25:90:86:77:89
+                }
             }
         }
         use-dnsmasq disable
@@ -313,12 +380,10 @@ service {
     dns {
         forwarding {
             cache-size 1000
-            listen-on eth0
             listen-on eth0.10
             listen-on eth0.20
             listen-on eth0.30
             listen-on eth0.40
-            listen-on eth2
         }
     }
     gui {
@@ -432,16 +497,6 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
-        from LAN_30_GUEST {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_40_DMZ {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
         from LOCAL {
             firewall {
                 name ACCEPT_ALL
@@ -458,17 +513,12 @@ zone-policy {
         default-action drop
         from LAN_10_MGMT {
             firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_30_GUEST {
-            firewall {
-                name ACCEPT_ALL
+                name DROP_EXCEPT_ESTABLISHED
             }
         }
         from LAN_40_DMZ {
             firewall {
-                name ACCEPT_ALL
+                name DROP_EXCEPT_ESTABLISHED
             }
         }
         from LOCAL {
@@ -485,21 +535,6 @@ zone-policy {
     }
     zone LAN_30_GUEST {
         default-action drop
-        from LAN_10_MGMT {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_20_PRIVATE {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_40_DMZ {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
         from LOCAL {
             firewall {
                 name ACCEPT_ALL
@@ -514,17 +549,7 @@ zone-policy {
     }
     zone LAN_40_DMZ {
         default-action drop
-        from LAN_10_MGMT {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
         from LAN_20_PRIVATE {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_30_GUEST {
             firewall {
                 name ACCEPT_ALL
             }
@@ -536,7 +561,7 @@ zone-policy {
         }
         from WAN {
             firewall {
-                name DROP_EXCEPT_ESTABLISHED
+                name WAN_TO_DMZ
             }
         }
         interface eth0.40
