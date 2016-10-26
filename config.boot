@@ -32,6 +32,152 @@ firewall {
             }
         }
     }
+    name ACCEPT_NETWORKING {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid state"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 100 {
+            action accept
+            protocol icmp
+        }
+        rule 600 {
+            action accept
+            description "Allow DNS"
+            destination {
+                port 53
+            }
+            protocol tcp_udp
+        }
+        rule 700 {
+            action accept
+            description "Allow DHCP"
+            destination {
+                port 67,68
+            }
+            protocol udp
+        }
+    }
+    name ACCEPT_NETWORKING_AND_MGMT {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid state"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 100 {
+            action accept
+            protocol icmp
+        }
+        rule 200 {
+            action accept
+            description "Allow HTTP/HTTPS"
+            destination {
+                port 80,443
+            }
+            protocol tcp
+        }
+        rule 600 {
+            action accept
+            description "Allow DNS"
+            destination {
+                port 53
+            }
+            protocol tcp_udp
+        }
+        rule 700 {
+            action accept
+            description "Allow DHCP"
+            destination {
+                port 67,68
+            }
+            protocol udp
+        }
+        rule 800 {
+            action accept
+            description "Allow SSH"
+            destination {
+                port 22
+            }
+            protocol tcp
+        }
+    }
+    name ACCEPT_PING {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 3 {
+            action accept
+            description "Accept ICMP"
+            log disable
+            protocol icmp
+        }
+    }
     name DROP_EXCEPT_ESTABLISHED {
         default-action drop
         enable-default-log
@@ -499,7 +645,7 @@ zone-policy {
         }
         from LOCAL {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_PING
             }
         }
         from WAN {
@@ -523,7 +669,7 @@ zone-policy {
         }
         from LOCAL {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_PING
             }
         }
         from WAN {
@@ -537,7 +683,7 @@ zone-policy {
         default-action drop
         from LOCAL {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_PING
             }
         }
         from WAN {
@@ -556,7 +702,7 @@ zone-policy {
         }
         from LOCAL {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_PING
             }
         }
         from WAN {
@@ -570,22 +716,22 @@ zone-policy {
         default-action drop
         from LAN_10_MGMT {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_NETWORKING
             }
         }
         from LAN_20_PRIVATE {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_NETWORKING_AND_MGMT
             }
         }
         from LAN_30_GUEST {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_NETWORKING
             }
         }
         from LAN_40_DMZ {
             firewall {
-                name ACCEPT_ALL
+                name ACCEPT_NETWORKING
             }
         }
         from WAN {
