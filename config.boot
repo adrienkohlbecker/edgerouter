@@ -556,7 +556,7 @@ system {
     login {
         user ubnt {
             authentication {
-                encrypted-password $1$zKNoUbAo$gomzUbYvgyUMcD436Wo66.
+                encrypted-password $6$OaN36XY5R$SUDGqjVH1CxGhf3GtfkUJk3hS1mI5S6gTHAsvqz8ScxmzLuZeKABKIV4mILA1QJubmy1y3Rk.O936VOmynPyh1
             }
             level admin
         }
