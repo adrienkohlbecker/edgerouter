@@ -718,6 +718,11 @@ zone-policy {
                 name DROP_EXCEPT_ESTABLISHED
             }
         }
+        from LAN_30_GUEST {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
         from LAN_40_DMZ {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
@@ -737,6 +742,16 @@ zone-policy {
     }
     zone LAN_30_GUEST {
         default-action drop
+        from LAN_20_PRIVATE {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_50_VPN {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
         from LOCAL {
             firewall {
                 name ACCEPT_PING
@@ -776,6 +791,11 @@ zone-policy {
     zone LAN_50_VPN {
         default-action drop
         from LAN_10_MGMT {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        from LAN_30_GUEST {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
             }
