@@ -300,7 +300,6 @@ firewall {
 }
 interfaces {
     ethernet eth0 {
-        address 10.123.0.1/24
         description LAN
         duplex auto
         speed auto
@@ -341,7 +340,6 @@ interfaces {
         }
     }
     ethernet eth2 {
-        address 10.123.1.1/24
         description LAN2
         disable
         duplex auto
