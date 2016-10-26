@@ -285,6 +285,43 @@ firewall {
             protocol udp
         }
     }
+    name WAN_TO_LOCAL {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid state"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 3 {
+            action accept
+            description "Allow OpenVPN"
+            destination {
+                port 1194
+            }
+            log disable
+            protocol udp
+        }
+    }
     options {
         mss-clamp {
             interface-type pppoe
@@ -347,6 +384,33 @@ interfaces {
     }
     loopback lo {
     }
+    openvpn vtun0 {
+        description VPN
+        encryption aes256
+        hash sha256
+        local-port 1194
+        mode server
+        openvpn-option "--push redirect-gateway"
+        openvpn-option "--push dhcp-option DNS 10.123.50.1"
+        openvpn-option --comp-lzo
+        openvpn-option --persist-key
+        openvpn-option --persist-tun
+        openvpn-option "--keepalive 10 120"
+        openvpn-option "--user nobody"
+        openvpn-option "--group nogroup"
+        openvpn-option "--tls-auth /config/auth/openvpn/vpn-ta.key 0"
+        openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.key 0"
+        openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.pem 0"
+        server {
+            subnet 10.123.50.0/24
+        }
+        tls {
+            ca-cert-file /config/auth/openvpn/vpn-ca.pem
+            cert-file /config/auth/openvpn/vpn-server.pem
+            dh-file /config/auth/openvpn/vpn-dhparam.pem
+            key-file /config/auth/openvpn/vpn-server-key.pem
+        }
+    }
 }
 port-forward {
     auto-firewall disable
@@ -355,6 +419,7 @@ port-forward {
     lan-interface eth0.20
     lan-interface eth0.30
     lan-interface eth0.40
+    lan-interface vtun0
     rule 1 {
         description HTTPS
         forward-to {
@@ -383,15 +448,6 @@ port-forward {
         protocol tcp
     }
     rule 4 {
-        description OpenVPN
-        forward-to {
-            address 10.123.40.11
-            port 1194
-        }
-        original-port 1194
-        protocol udp
-    }
-    rule 5 {
         description "Gitlab SSH"
         forward-to {
             address 10.123.40.11
@@ -400,7 +456,7 @@ port-forward {
         original-port 2222
         protocol tcp
     }
-    rule 6 {
+    rule 5 {
         description SFTP
         forward-to {
             address 10.123.40.11
@@ -516,6 +572,8 @@ service {
             listen-on eth0.20
             listen-on eth0.30
             listen-on eth0.40
+            listen-on vtun0
+            system
         }
     }
     gui {
@@ -634,6 +692,11 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
+        from LAN_50_VPN {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
         from LOCAL {
             firewall {
                 name ACCEPT_PING
@@ -691,6 +754,11 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
+        from LAN_50_VPN {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
         from LOCAL {
             firewall {
                 name ACCEPT_PING
@@ -702,6 +770,30 @@ zone-policy {
             }
         }
         interface eth0.40
+    }
+    zone LAN_50_VPN {
+        default-action drop
+        from LAN_10_MGMT {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        from LAN_40_DMZ {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        from LOCAL {
+            firewall {
+                name ACCEPT_PING
+            }
+        }
+        from WAN {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
+        interface vtun0
     }
     zone LOCAL {
         default-action drop
@@ -725,9 +817,14 @@ zone-policy {
                 name ACCEPT_NETWORKING
             }
         }
+        from LAN_50_VPN {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
         from WAN {
             firewall {
-                name DROP_EXCEPT_ESTABLISHED
+                name WAN_TO_LOCAL
             }
         }
         local-zone
@@ -750,6 +847,11 @@ zone-policy {
             }
         }
         from LAN_40_DMZ {
+            firewall {
+                name ACCEPT_ALL
+            }
+        }
+        from LAN_50_VPN {
             firewall {
                 name ACCEPT_ALL
             }
