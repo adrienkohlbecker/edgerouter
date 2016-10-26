@@ -419,10 +419,7 @@ service {
             authoritative disable
             subnet 10.123.10.0/24 {
                 default-router 10.123.10.1
-                dns-server 8.8.8.8
-                dns-server 8.8.4.4
-                dns-server 208.67.222.222
-                dns-server 208.67.220.220
+                dns-server 10.123.10.1
                 lease 86400
                 start 10.123.10.100 {
                     stop 10.123.10.200
@@ -445,10 +442,7 @@ service {
             authoritative disable
             subnet 10.123.20.0/24 {
                 default-router 10.123.20.1
-                dns-server 8.8.8.8
-                dns-server 8.8.4.4
-                dns-server 208.67.222.222
-                dns-server 208.67.220.220
+                dns-server 10.123.20.1
                 lease 86400
                 start 10.123.20.100 {
                     stop 10.123.20.200
@@ -483,10 +477,7 @@ service {
             authoritative disable
             subnet 10.123.30.0/24 {
                 default-router 10.123.30.1
-                dns-server 8.8.8.8
-                dns-server 8.8.4.4
-                dns-server 208.67.222.222
-                dns-server 208.67.220.220
+                dns-server 10.123.30.1
                 lease 86400
                 start 10.123.30.100 {
                     stop 10.123.30.200
@@ -501,10 +492,7 @@ service {
             authoritative disable
             subnet 10.123.40.0/24 {
                 default-router 10.123.40.1
-                dns-server 8.8.8.8
-                dns-server 8.8.4.4
-                dns-server 208.67.222.222
-                dns-server 208.67.220.220
+                dns-server 10.123.40.1
                 lease 86400
                 start 10.123.40.100 {
                     stop 10.123.40.200
