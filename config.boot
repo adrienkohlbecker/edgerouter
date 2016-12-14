@@ -319,7 +319,6 @@ firewall {
     }
     name WAN_TO_DMZ {
         default-action drop
-        description ""
         enable-default-log
         rule 10 {
             action accept
