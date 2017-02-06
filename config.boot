@@ -508,8 +508,6 @@ interfaces {
         openvpn-option "--keepalive 10 120"
         openvpn-option "--user nobody"
         openvpn-option "--group nogroup"
-        openvpn-option "--tls-auth /config/auth/openvpn/vpn-ta.key 0"
-        openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.key 0"
         openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.pem 0"
         server {
             subnet 10.123.50.0/24
