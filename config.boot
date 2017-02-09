@@ -509,8 +509,10 @@ interfaces {
         openvpn-option "--user nobody"
         openvpn-option "--group nogroup"
         openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.pem 0"
+        protocol udp
         server {
             subnet 10.123.50.0/24
+            topology subnet
         }
         tls {
             ca-cert-file /config/auth/openvpn/vpn-ca.pem
