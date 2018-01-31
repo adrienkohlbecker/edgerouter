@@ -289,6 +289,52 @@ firewall {
             protocol udp
         }
     }
+    name ACCEPT_PLEX_AND_ARQ {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+        rule 4 {
+            action accept
+            description "Accept Plex"
+            destination {
+                port 32400
+            }
+            log disable
+            protocol tcp
+        }
+        rule 5 {
+            action accept
+            description "Accept Arq SFTP"
+            destination {
+                port 2223
+            }
+            log disable
+            protocol tcp
+        }
+    }
     name DROP_EXCEPT_ESTABLISHED {
         default-action drop
         enable-default-log
@@ -472,19 +518,10 @@ interfaces {
         }
     }
     ethernet eth1 {
+        address dhcp
         description WAN
         duplex auto
         speed auto
-        vif 200 {
-            address dhcp
-            description Internet
-            dhcp-options {
-                client-option "send vendor-class-identifier &quot;byteliad_data&quot;;"
-                default-route update
-                default-route-distance 210
-                name-server update
-            }
-        }
     }
     ethernet eth2 {
         description LAN2
@@ -575,7 +612,7 @@ port-forward {
         original-port 2223
         protocol tcp
     }
-    wan-interface eth1.200
+    wan-interface eth1
 }
 service {
     dhcp-server {
@@ -696,7 +733,7 @@ service {
     }
     nat {
         rule 5010 {
-            outbound-interface eth1.200
+            outbound-interface eth1
             type masquerade
         }
     }
@@ -716,7 +753,7 @@ service {
         listen-on eth2
         nat-pmp enable
         secure-mode disable
-        wan eth1.200
+        wan eth1
     }
 }
 system {
@@ -725,12 +762,12 @@ system {
     }
     host-name ubnt
     login {
-        user ubnt {
+        user ak {
             authentication {
-                encrypted-password $6$OaN36XY5R$SUDGqjVH1CxGhf3GtfkUJk3hS1mI5S6gTHAsvqz8ScxmzLuZeKABKIV4mILA1QJubmy1y3Rk.O936VOmynPyh1
+                encrypted-password $6$M/4yL3x5s9SrUfD$XIw6VMKY1l9EI/V9/KFsXyMV4TcY79gIVN5QfRgVByJ7dWDsofjuzGJigLOILwa.oetpkP3xSYMMaLdCkQ6670
                 plaintext-password ""
             }
-            full-name ""
+            full-name "Adrien Kohlbecker"
             level admin
         }
     }
@@ -768,13 +805,6 @@ system {
             distribution wheezy
             password ""
             url http://http.us.debian.org/debian
-            username ""
-        }
-        repository wheezy-security {
-            components main
-            distribution wheezy/updates
-            password ""
-            url http://security.debian.org
             username ""
         }
     }
@@ -855,6 +885,11 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
+        from LAN_40_DMZ {
+            firewall {
+                name DROP_EXCEPT_ESTABLISHED
+            }
+        }
         from LAN_50_VPN {
             firewall {
                 name ACCEPT_ALL
@@ -877,6 +912,11 @@ zone-policy {
         from LAN_20_PRIVATE {
             firewall {
                 name ACCEPT_ALL
+            }
+        }
+        from LAN_30_GUEST {
+            firewall {
+                name ACCEPT_PLEX_AND_ARQ
             }
         }
         from LAN_50_VPN {
@@ -991,7 +1031,7 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
-        interface eth1.200
+        interface eth1
     }
 }
 
