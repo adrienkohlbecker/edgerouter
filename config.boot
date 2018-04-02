@@ -771,6 +771,8 @@ system {
             level admin
         }
     }
+    name-server 1.1.1.1
+    name-server 1.0.0.1
     name-server 8.8.8.8
     name-server 8.8.4.4
     name-server 208.67.222.222
