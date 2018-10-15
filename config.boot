@@ -493,14 +493,10 @@ firewall {
 }
 interfaces {
     ethernet eth0 {
+        address 10.123.0.1/24
         description LAN
         duplex auto
         speed auto
-        vif 10 {
-            address 10.123.10.1/24
-            description LAN_10_MGMT
-            mtu 1500
-        }
         vif 20 {
             address 10.123.20.1/24
             description LAN_20_PRIVATE
@@ -562,7 +558,7 @@ interfaces {
 port-forward {
     auto-firewall disable
     hairpin-nat enable
-    lan-interface eth0.10
+    lan-interface eth0
     lan-interface eth0.20
     lan-interface eth0.30
     lan-interface eth0.40
@@ -618,26 +614,22 @@ service {
     dhcp-server {
         disabled false
         hostfile-update disable
-        shared-network-name LAN_10_MGMT {
+        shared-network-name LAN {
             authoritative disable
-            subnet 10.123.10.0/24 {
-                default-router 10.123.10.1
-                dns-server 10.123.10.1
+            subnet 10.123.0.0/24 {
+                default-router 10.123.0.1
+                dns-server 10.123.0.1
                 lease 86400
-                start 10.123.10.100 {
-                    stop 10.123.10.200
+                start 10.123.0.100 {
+                    stop 10.123.0.200
                 }
                 static-mapping hypervisor-ipmi {
-                    ip-address 10.123.10.10
+                    ip-address 10.123.0.10
                     mac-address 00:25:90:86:5a:ae
                 }
-                static-mapping meraki {
-                    ip-address 10.123.10.3
-                    mac-address 00:18:0a:7b:2b:7e
-                }
-                static-mapping switch {
-                    ip-address 10.123.10.2
-                    mac-address 38:63:bb:ed:bd:80
+                static-mapping unifi {
+                    ip-address 10.123.0.2
+                    mac-address b8:27:eb:ff:5a:e9
                 }
             }
         }
@@ -649,30 +641,6 @@ service {
                 lease 86400
                 start 10.123.20.100 {
                     stop 10.123.20.200
-                }
-                static-mapping lg-g5 {
-                    ip-address 10.123.20.31
-                    mac-address 5c:70:a3:60:51:38
-                }
-                static-mapping mbp-ethernet {
-                    ip-address 10.123.20.22
-                    mac-address 00:e0:1b:6f:f8:44
-                }
-                static-mapping mbp-wifi {
-                    ip-address 10.123.20.21
-                    mac-address a4:5e:60:ca:20:df
-                }
-                static-mapping sonos-bridge {
-                    ip-address 10.123.20.41
-                    mac-address 00:0e:58:19:4e:be
-                }
-                static-mapping sonos-play1 {
-                    ip-address 10.123.20.43
-                    mac-address 00:0e:58:c9:41:dc
-                }
-                static-mapping sonos-play5 {
-                    ip-address 10.123.20.42
-                    mac-address 00:0e:58:8e:8e:50
                 }
             }
         }
@@ -715,11 +683,12 @@ service {
     dns {
         forwarding {
             cache-size 1000
-            listen-on eth0.10
+            listen-on eth0
             listen-on eth0.20
             listen-on eth0.30
             listen-on eth0.40
             listen-on vtun0
+            options rebind-domain-ok=/plex.direct/
             system
         }
     }
@@ -746,7 +715,6 @@ service {
     }
     upnp2 {
         listen-on eth0
-        listen-on eth0.10
         listen-on eth0.20
         listen-on eth0.30
         listen-on eth0.40
@@ -764,7 +732,7 @@ system {
     login {
         user ak {
             authentication {
-                encrypted-password $6$M/4yL3x5s9SrUfD$XIw6VMKY1l9EI/V9/KFsXyMV4TcY79gIVN5QfRgVByJ7dWDsofjuzGJigLOILwa.oetpkP3xSYMMaLdCkQ6670
+                encrypted-password $6$TE36sZQb0V5$P4by4Sna4lgrY2bMuhV3RkjCZP8DIRo3gQZqc3vRkwANGNJhIslD7xncbVWvM6CYUaLvEIUuCtP4Hs3x9oGb9/
                 plaintext-password ""
             }
             full-name "Adrien Kohlbecker"
@@ -827,7 +795,7 @@ system {
     }
 }
 zone-policy {
-    zone LAN_10_MGMT {
+    zone LAN_00_DEFAULT {
         default-action drop
         from LAN_20_PRIVATE {
             firewall {
@@ -849,11 +817,11 @@ zone-policy {
                 name DROP_EXCEPT_ESTABLISHED
             }
         }
-        interface eth0.10
+        interface eth0
     }
     zone LAN_20_PRIVATE {
         default-action drop
-        from LAN_10_MGMT {
+        from LAN_00_DEFAULT {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
             }
@@ -940,7 +908,7 @@ zone-policy {
     }
     zone LAN_50_VPN {
         default-action drop
-        from LAN_10_MGMT {
+        from LAN_00_DEFAULT {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
             }
@@ -969,9 +937,9 @@ zone-policy {
     }
     zone LOCAL {
         default-action drop
-        from LAN_10_MGMT {
+        from LAN_00_DEFAULT {
             firewall {
-                name ACCEPT_NETWORKING
+                name ACCEPT_NETWORKING_AND_MGMT
             }
         }
         from LAN_20_PRIVATE {
@@ -1003,7 +971,7 @@ zone-policy {
     }
     zone WAN {
         default-action drop
-        from LAN_10_MGMT {
+        from LAN_00_DEFAULT {
             firewall {
                 name ACCEPT_ALL
             }
@@ -1040,4 +1008,4 @@ zone-policy {
 
 /* Warning: Do not remove the following line. */
 /* === vyatta-config-version: "config-management@1:conntrack@1:cron@1:dhcp-relay@1:dhcp-server@4:firewall@5:ipsec@5:nat@3:qos@1:quagga@2:system@4:ubnt-pptp@1:ubnt-util@1:vrrp@1:webgui@1:webproxy@1:zone-policy@1" === */
-/* Release version: v1.9.0.4901118.160804.1131 */
+/* Release version: v1.9.1.4939093.161214.0705 */
