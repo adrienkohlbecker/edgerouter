@@ -174,8 +174,9 @@ firewall {
             action accept
             description "Allow HTTP/HTTPS"
             destination {
-                port 80,443
+                port 80,443,8443
             }
+            log disable
             protocol tcp
         }
         rule 600 {
@@ -541,17 +542,17 @@ interfaces {
         openvpn-option "--keepalive 10 120"
         openvpn-option "--user nobody"
         openvpn-option "--group nogroup"
-        openvpn-option "--tls-auth /config/auth/openvpn/vpn-tlsauth.pem 0"
+        openvpn-option "--tls-auth /config/auth/vpn-tlsauth.pem 0"
         protocol udp
         server {
             subnet 10.123.50.0/24
             topology subnet
         }
         tls {
-            ca-cert-file /config/auth/openvpn/vpn-ca.pem
-            cert-file /config/auth/openvpn/vpn-server.pem
-            dh-file /config/auth/openvpn/vpn-dhparam.pem
-            key-file /config/auth/openvpn/vpn-server-key.pem
+            ca-cert-file /config/auth/vpn-ca.pem
+            cert-file /config/auth/vpn-server.pem
+            dh-file /config/auth/vpn-dhparam.pem
+            key-file /config/auth/vpn-server-key.pem
         }
     }
 }
@@ -615,7 +616,7 @@ service {
         disabled false
         hostfile-update disable
         shared-network-name LAN {
-            authoritative disable
+            authoritative enable
             subnet 10.123.0.0/24 {
                 default-router 10.123.0.1
                 dns-server 10.123.0.1
@@ -634,7 +635,7 @@ service {
             }
         }
         shared-network-name LAN_20_PRIVATE {
-            authoritative disable
+            authoritative enable
             subnet 10.123.20.0/24 {
                 default-router 10.123.20.1
                 dns-server 10.123.20.1
@@ -645,7 +646,7 @@ service {
             }
         }
         shared-network-name LAN_30_GUEST {
-            authoritative disable
+            authoritative enable
             subnet 10.123.30.0/24 {
                 default-router 10.123.30.1
                 dns-server 10.123.30.1
@@ -660,7 +661,7 @@ service {
             }
         }
         shared-network-name LAN_40_DMZ {
-            authoritative disable
+            authoritative enable
             subnet 10.123.40.0/24 {
                 default-router 10.123.40.1
                 dns-server 10.123.40.1
