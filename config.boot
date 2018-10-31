@@ -592,15 +592,6 @@ port-forward {
         protocol tcp
     }
     rule 4 {
-        description "Gitlab SSH"
-        forward-to {
-            address 10.123.40.11
-            port 2222
-        }
-        original-port 2222
-        protocol tcp
-    }
-    rule 5 {
         description SFTP
         forward-to {
             address 10.123.40.11
