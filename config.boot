@@ -328,9 +328,9 @@ firewall {
         }
         rule 5 {
             action accept
-            description "Accept Arq SFTP"
+            description "Accept Arq SSH"
             destination {
-                port 2223
+                port 2224
             }
             log disable
             protocol tcp
@@ -411,19 +411,9 @@ firewall {
             log disable
             protocol tcp
         }
-        rule 41 {
-            action accept
-            description "Allow Gitlab SSH"
-            destination {
-                address 10.123.40.11
-                port 2222
-            }
-            log disable
-            protocol tcp
-        }
         rule 42 {
             action accept
-            description "Allow SFTP"
+            description "Allow brumath SSH"
             destination {
                 address 10.123.40.11
                 port 2223
@@ -440,6 +430,16 @@ firewall {
             }
             log disable
             protocol udp
+        }
+        rule 44 {
+            action accept
+            description "Allow arq SSH"
+            destination {
+                address 10.123.40.11
+                port 2224
+            }
+            log disable
+            protocol tcp
         }
     }
     name WAN_TO_LOCAL {
@@ -592,12 +592,21 @@ port-forward {
         protocol tcp
     }
     rule 4 {
-        description SFTP
+        description ssh-brumath
         forward-to {
             address 10.123.40.11
             port 2223
         }
         original-port 2223
+        protocol tcp
+    }
+    rule 4 {
+        description ssh-arq
+        forward-to {
+            address 10.123.40.11
+            port 2224
+        }
+        original-port 2224
         protocol tcp
     }
     wan-interface eth1
