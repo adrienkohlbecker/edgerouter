@@ -290,7 +290,7 @@ firewall {
             protocol udp
         }
     }
-    name ACCEPT_PLEX_AND_ARQ {
+    name GUEST_TO_PRIVATE {
         default-action drop
         enable-default-log
         rule 1 {
@@ -334,6 +334,16 @@ firewall {
             }
             log disable
             protocol tcp
+        }
+        rule 6 {
+            action accept
+            description "Allow wireguard"
+            destination {
+                address 10.123.40.11
+                port 51820
+            }
+            log disable
+            protocol udp
         }
     }
     name DROP_EXCEPT_ESTABLISHED {
@@ -880,7 +890,7 @@ zone-policy {
         }
         from LAN_30_GUEST {
             firewall {
-                name ACCEPT_PLEX_AND_ARQ
+                name GUEST_TO_PRIVATE
             }
         }
         from LAN_50_VPN {
