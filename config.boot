@@ -391,16 +391,6 @@ firewall {
                 related disable
             }
         }
-        rule 30 {
-            action accept
-            description "Allow HTTP"
-            destination {
-                address 10.123.40.11
-                port 80,443
-            }
-            log disable
-            protocol tcp
-        }
         rule 40 {
             action accept
             description "Allow Plex"
@@ -421,16 +411,6 @@ firewall {
             log disable
             protocol tcp
         }
-        rule 43 {
-            action accept
-            description "Allow OpenVPN"
-            destination {
-                address 10.123.40.11
-                port 1194
-            }
-            log disable
-            protocol udp
-        }
         rule 44 {
             action accept
             description "Allow arq SSH"
@@ -440,6 +420,16 @@ firewall {
             }
             log disable
             protocol tcp
+        }
+        rule 45 {
+            action accept
+            description "Allow wireguard"
+            destination {
+                address 10.123.40.11
+                port 51820
+            }
+            log disable
+            protocol udp
         }
     }
     name WAN_TO_LOCAL {
@@ -517,6 +507,9 @@ interfaces {
     ethernet eth1 {
         address dhcp
         description WAN
+        dhcp-options {
+            name-server no-update
+        }
         duplex auto
         speed auto
     }
@@ -565,24 +558,6 @@ port-forward {
     lan-interface eth0.40
     lan-interface vtun0
     rule 1 {
-        description HTTPS
-        forward-to {
-            address 10.123.40.11
-            port 443
-        }
-        original-port 443
-        protocol tcp
-    }
-    rule 2 {
-        description HTTP
-        forward-to {
-            address 10.123.40.11
-            port 80
-        }
-        original-port 80
-        protocol tcp
-    }
-    rule 3 {
         description Plex
         forward-to {
             address 10.123.40.11
@@ -591,7 +566,7 @@ port-forward {
         original-port 32400
         protocol tcp
     }
-    rule 4 {
+    rule 2 {
         description ssh-brumath
         forward-to {
             address 10.123.40.11
@@ -600,7 +575,7 @@ port-forward {
         original-port 2223
         protocol tcp
     }
-    rule 4 {
+    rule 3 {
         description ssh-arq
         forward-to {
             address 10.123.40.11
@@ -608,6 +583,15 @@ port-forward {
         }
         original-port 2224
         protocol tcp
+    }
+    rule 4 {
+        description wireguard
+        forward-to {
+            address 10.123.40.11
+            port 51820
+        }
+        original-port 51820
+        protocol udp
     }
     wan-interface eth1
 }
@@ -690,6 +674,15 @@ service {
             listen-on eth0.40
             listen-on vtun0
             options rebind-domain-ok=/plex.direct/
+            options address=/wireguard.kohlby.fr/10.123.40.11
+            options address=/couchpotato.kohlby.fr/10.123.40.11
+            options address=/gogs.kohlby.fr/10.123.40.11
+            options address=/portainer.kohlby.fr/10.123.40.11
+            options address=/sabnzbd.kohlby.fr/10.123.40.11
+            options address=/sickrage.kohlby.fr/10.123.40.11
+            options address=/speedtest.kohlby.fr/10.123.40.11
+            options address=/traefik.kohlby.fr/10.123.40.11
+            options strict-order
             system
         }
     }
