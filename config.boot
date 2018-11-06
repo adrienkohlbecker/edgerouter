@@ -80,7 +80,7 @@ firewall {
             protocol udp
         }
     }
-    name ACCEPT_NETWORKING_AND_WEBFACE {
+    name ACCEPT_NETWORKING_AND_WEB {
         default-action drop
         enable-default-log
         rule 1 {
@@ -117,7 +117,7 @@ firewall {
             action accept
             description "Allow HTTP/HTTPS"
             destination {
-                port 80,443,8443
+                port 80,443
             }
             log disable
             protocol tcp
@@ -717,7 +717,7 @@ zone-policy {
         default-action drop
         from LAN_00_DEFAULT {
             firewall {
-                name ACCEPT_NETWORKING_AND_WEBFACE
+                name ACCEPT_NETWORKING_AND_WEB
             }
         }
         from LAN_20_PRIVATE {
