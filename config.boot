@@ -413,6 +413,8 @@ interfaces {
         address dhcp
         description WAN
         dhcp-options {
+            default-route update
+            default-route-distance 210
             name-server no-update
         }
         duplex auto
@@ -589,10 +591,6 @@ system {
     }
     name-server 1.1.1.1
     name-server 1.0.0.1
-    name-server 8.8.8.8
-    name-server 8.8.4.4
-    name-server 208.67.222.222
-    name-server 208.67.220.220
     ntp {
         server 0.ubnt.pool.ntp.org {
         }
