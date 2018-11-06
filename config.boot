@@ -113,15 +113,6 @@ firewall {
             log disable
             protocol icmp
         }
-        rule 200 {
-            action accept
-            description "Allow HTTP/HTTPS"
-            destination {
-                port 80,443
-            }
-            log disable
-            protocol tcp
-        }
         rule 600 {
             action accept
             description "Allow DNS"
@@ -138,7 +129,7 @@ firewall {
             }
             protocol udp
         }
-        rule 801 {
+        rule 701 {
             action accept
             description "Allow mDNS"
             destination {
@@ -146,6 +137,15 @@ firewall {
             }
             log disable
             protocol udp
+        }
+        rule 702 {
+            action accept
+            description "Allow HTTP"
+            destination {
+                port 80,443
+            }
+            log disable
+            protocol tcp
         }
     }
     name ACCEPT_PING {
@@ -225,6 +225,34 @@ firewall {
             protocol udp
         }
     }
+    name DROP_EXCEPT_ESTABLISHED {
+        default-action drop
+        enable-default-log
+        rule 1 {
+            action accept
+            description "Allow established / related"
+            log disable
+            protocol all
+            state {
+                established enable
+                invalid disable
+                new disable
+                related enable
+            }
+        }
+        rule 2 {
+            action drop
+            description "Drop invalid state"
+            log enable
+            protocol all
+            state {
+                established disable
+                invalid enable
+                new disable
+                related disable
+            }
+        }
+    }
     name GUEST_TO_DEFAULT {
         default-action drop
         enable-default-log
@@ -281,34 +309,6 @@ firewall {
             }
             log disable
             protocol udp
-        }
-    }
-    name DROP_EXCEPT_ESTABLISHED {
-        default-action drop
-        enable-default-log
-        rule 1 {
-            action accept
-            description "Allow established / related"
-            log disable
-            protocol all
-            state {
-                established enable
-                invalid disable
-                new disable
-                related enable
-            }
-        }
-        rule 2 {
-            action drop
-            description "Drop invalid state"
-            log enable
-            protocol all
-            state {
-                established disable
-                invalid enable
-                new disable
-                related disable
-            }
         }
     }
     name WAN_TO_DEFAULT {
@@ -486,10 +486,6 @@ service {
                 start 10.123.0.100 {
                     stop 10.123.0.200
                 }
-                static-mapping homelab-ipmi {
-                    ip-address 10.123.0.10
-                    mac-address 00:25:90:86:5a:ae
-                }
                 static-mapping homelab-eth0 {
                     ip-address 10.123.0.11
                     mac-address 00:25:90:86:77:88
@@ -497,6 +493,10 @@ service {
                 static-mapping homelab-eth1 {
                     ip-address 10.123.0.12
                     mac-address 00:25:90:86:77:89
+                }
+                static-mapping homelab-ipmi {
+                    ip-address 10.123.0.10
+                    mac-address 00:25:90:86:5a:ae
                 }
                 static-mapping unifi {
                     ip-address 10.123.0.2
@@ -508,6 +508,7 @@ service {
             authoritative enable
             subnet 10.123.20.0/24 {
                 default-router 10.123.20.1
+                dns-server 10.123.0.11
                 dns-server 10.123.20.1
                 lease 86400
                 start 10.123.20.100 {
