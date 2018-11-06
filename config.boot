@@ -80,64 +80,7 @@ firewall {
             protocol udp
         }
     }
-    name ACCEPT_NETWORKING_AND_MDNS {
-        default-action drop
-        enable-default-log
-        rule 1 {
-            action accept
-            description "Allow established / related"
-            log disable
-            protocol all
-            state {
-                established enable
-                invalid disable
-                new disable
-                related enable
-            }
-        }
-        rule 2 {
-            action drop
-            description "Drop invalid state"
-            log enable
-            protocol all
-            state {
-                established disable
-                invalid enable
-                new disable
-                related disable
-            }
-        }
-        rule 100 {
-            action accept
-            protocol icmp
-        }
-        rule 600 {
-            action accept
-            description "Allow DNS"
-            destination {
-                port 53
-            }
-            protocol tcp_udp
-        }
-        rule 700 {
-            action accept
-            description "Allow DHCP"
-            destination {
-                port 67,68
-            }
-            protocol udp
-        }
-        rule 701 {
-            action accept
-            description "Allow mDNS"
-            destination {
-                port 5353
-            }
-            log disable
-            protocol udp
-        }
-    }
-    name ACCEPT_NETWORKING_AND_MGMT {
+    name ACCEPT_NETWORKING_AND_WEBFACE {
         default-action drop
         enable-default-log
         rule 1 {
@@ -194,14 +137,6 @@ firewall {
                 port 67,68
             }
             protocol udp
-        }
-        rule 800 {
-            action accept
-            description "Allow SSH"
-            destination {
-                port 22
-            }
-            protocol tcp
         }
         rule 801 {
             action accept
@@ -290,7 +225,7 @@ firewall {
             protocol udp
         }
     }
-    name GUEST_TO_PRIVATE {
+    name GUEST_TO_DEFAULT {
         default-action drop
         enable-default-log
         rule 1 {
@@ -317,29 +252,31 @@ firewall {
                 related disable
             }
         }
-        rule 4 {
+        rule 6 {
             action accept
             description "Accept Plex"
             destination {
+                address 10.123.0.11
                 port 32400
             }
             log disable
             protocol tcp
         }
-        rule 5 {
+        rule 7 {
             action accept
             description "Accept Arq SSH"
             destination {
+                address 10.123.0.11
                 port 2224
             }
             log disable
             protocol tcp
         }
-        rule 6 {
+        rule 8 {
             action accept
             description "Allow wireguard"
             destination {
-                address 10.123.40.11
+                address 10.123.0.11
                 port 51820
             }
             log disable
@@ -374,7 +311,7 @@ firewall {
             }
         }
     }
-    name WAN_TO_DMZ {
+    name WAN_TO_DEFAULT {
         default-action drop
         enable-default-log
         rule 10 {
@@ -405,7 +342,7 @@ firewall {
             action accept
             description "Allow Plex"
             destination {
-                address 10.123.40.11
+                address 10.123.0.11
                 port 32400
             }
             log disable
@@ -415,7 +352,7 @@ firewall {
             action accept
             description "Allow brumath SSH"
             destination {
-                address 10.123.40.11
+                address 10.123.0.11
                 port 2223
             }
             log disable
@@ -425,7 +362,7 @@ firewall {
             action accept
             description "Allow arq SSH"
             destination {
-                address 10.123.40.11
+                address 10.123.0.11
                 port 2224
             }
             log disable
@@ -435,45 +372,8 @@ firewall {
             action accept
             description "Allow wireguard"
             destination {
-                address 10.123.40.11
+                address 10.123.0.11
                 port 51820
-            }
-            log disable
-            protocol udp
-        }
-    }
-    name WAN_TO_LOCAL {
-        default-action drop
-        enable-default-log
-        rule 1 {
-            action accept
-            description "Allow established / related"
-            log disable
-            protocol all
-            state {
-                established enable
-                invalid disable
-                new disable
-                related enable
-            }
-        }
-        rule 2 {
-            action drop
-            description "Drop invalid state"
-            log enable
-            protocol all
-            state {
-                established disable
-                invalid enable
-                new disable
-                related disable
-            }
-        }
-        rule 3 {
-            action accept
-            description "Allow OpenVPN"
-            destination {
-                port 1194
             }
             log disable
             protocol udp
@@ -495,7 +395,7 @@ firewall {
 interfaces {
     ethernet eth0 {
         address 10.123.0.1/24
-        description LAN
+        description LAN_00_DEFAULT
         duplex auto
         speed auto
         vif 20 {
@@ -506,11 +406,6 @@ interfaces {
         vif 30 {
             address 10.123.30.1/24
             description LAN_30_GUEST
-            mtu 1500
-        }
-        vif 40 {
-            address 10.123.40.1/24
-            description LAN_40_DMZ
             mtu 1500
         }
     }
@@ -524,39 +419,12 @@ interfaces {
         speed auto
     }
     ethernet eth2 {
-        description LAN2
+        description WAN2
         disable
         duplex auto
         speed auto
     }
     loopback lo {
-    }
-    openvpn vtun0 {
-        description VPN
-        encryption aes256
-        hash sha256
-        local-port 1194
-        mode server
-        openvpn-option "--push redirect-gateway"
-        openvpn-option "--push dhcp-option DNS 10.123.50.1"
-        openvpn-option --comp-lzo
-        openvpn-option --persist-key
-        openvpn-option --persist-tun
-        openvpn-option "--keepalive 10 120"
-        openvpn-option "--user nobody"
-        openvpn-option "--group nogroup"
-        openvpn-option "--tls-auth /config/auth/vpn-tlsauth.pem 0"
-        protocol udp
-        server {
-            subnet 10.123.50.0/24
-            topology subnet
-        }
-        tls {
-            ca-cert-file /config/auth/vpn-ca.pem
-            cert-file /config/auth/vpn-server.pem
-            dh-file /config/auth/vpn-dhparam.pem
-            key-file /config/auth/vpn-server-key.pem
-        }
     }
 }
 port-forward {
@@ -565,12 +433,10 @@ port-forward {
     lan-interface eth0
     lan-interface eth0.20
     lan-interface eth0.30
-    lan-interface eth0.40
-    lan-interface vtun0
     rule 1 {
         description Plex
         forward-to {
-            address 10.123.40.11
+            address 10.123.0.11
             port 32400
         }
         original-port 32400
@@ -579,7 +445,7 @@ port-forward {
     rule 2 {
         description ssh-brumath
         forward-to {
-            address 10.123.40.11
+            address 10.123.0.11
             port 2223
         }
         original-port 2223
@@ -588,7 +454,7 @@ port-forward {
     rule 3 {
         description ssh-arq
         forward-to {
-            address 10.123.40.11
+            address 10.123.0.11
             port 2224
         }
         original-port 2224
@@ -597,7 +463,7 @@ port-forward {
     rule 4 {
         description wireguard
         forward-to {
-            address 10.123.40.11
+            address 10.123.0.11
             port 51820
         }
         original-port 51820
@@ -609,7 +475,7 @@ service {
     dhcp-server {
         disabled false
         hostfile-update disable
-        shared-network-name LAN {
+        shared-network-name LAN_00_DEFAULT {
             authoritative enable
             subnet 10.123.0.0/24 {
                 default-router 10.123.0.1
@@ -618,9 +484,17 @@ service {
                 start 10.123.0.100 {
                     stop 10.123.0.200
                 }
-                static-mapping hypervisor-ipmi {
+                static-mapping homelab-ipmi {
                     ip-address 10.123.0.10
                     mac-address 00:25:90:86:5a:ae
+                }
+                static-mapping homelab-eth0 {
+                    ip-address 10.123.0.11
+                    mac-address 00:25:90:86:77:88
+                }
+                static-mapping homelab-eth1 {
+                    ip-address 10.123.0.12
+                    mac-address 00:25:90:86:77:89
                 }
                 static-mapping unifi {
                     ip-address 10.123.0.2
@@ -654,25 +528,6 @@ service {
                 }
             }
         }
-        shared-network-name LAN_40_DMZ {
-            authoritative enable
-            subnet 10.123.40.0/24 {
-                default-router 10.123.40.1
-                dns-server 10.123.40.1
-                lease 86400
-                start 10.123.40.100 {
-                    stop 10.123.40.200
-                }
-                static-mapping hypervisor-eth0 {
-                    ip-address 10.123.40.11
-                    mac-address 00:25:90:86:77:88
-                }
-                static-mapping hypervisor-eth1 {
-                    ip-address 10.123.40.12
-                    mac-address 00:25:90:86:77:89
-                }
-            }
-        }
         use-dnsmasq disable
     }
     dns {
@@ -681,17 +536,7 @@ service {
             listen-on eth0
             listen-on eth0.20
             listen-on eth0.30
-            listen-on eth0.40
-            listen-on vtun0
             options rebind-domain-ok=/plex.direct/
-            options address=/wireguard.kohlby.fr/10.123.40.11
-            options address=/couchpotato.kohlby.fr/10.123.40.11
-            options address=/gogs.kohlby.fr/10.123.40.11
-            options address=/portainer.kohlby.fr/10.123.40.11
-            options address=/sabnzbd.kohlby.fr/10.123.40.11
-            options address=/sickrage.kohlby.fr/10.123.40.11
-            options address=/speedtest.kohlby.fr/10.123.40.11
-            options address=/traefik.kohlby.fr/10.123.40.11
             options strict-order
             system
         }
@@ -721,7 +566,6 @@ service {
         listen-on eth0
         listen-on eth0.20
         listen-on eth0.30
-        listen-on eth0.40
         listen-on eth2
         nat-pmp enable
         secure-mode disable
@@ -806,9 +650,9 @@ zone-policy {
                 name ACCEPT_ALL
             }
         }
-        from LAN_50_VPN {
+        from LAN_30_GUEST {
             firewall {
-                name ACCEPT_ALL
+                name GUEST_TO_DEFAULT
             }
         }
         from LOCAL {
@@ -818,7 +662,7 @@ zone-policy {
         }
         from WAN {
             firewall {
-                name DROP_EXCEPT_ESTABLISHED
+                name WAN_TO_DEFAULT
             }
         }
         interface eth0
@@ -831,11 +675,6 @@ zone-policy {
             }
         }
         from LAN_30_GUEST {
-            firewall {
-                name DROP_EXCEPT_ESTABLISHED
-            }
-        }
-        from LAN_40_DMZ {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
             }
@@ -854,17 +693,12 @@ zone-policy {
     }
     zone LAN_30_GUEST {
         default-action drop
-        from LAN_20_PRIVATE {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_40_DMZ {
+        from LAN_00_DEFAULT {
             firewall {
                 name DROP_EXCEPT_ESTABLISHED
             }
         }
-        from LAN_50_VPN {
+        from LAN_20_PRIVATE {
             firewall {
                 name ACCEPT_ALL
             }
@@ -881,94 +715,26 @@ zone-policy {
         }
         interface eth0.30
     }
-    zone LAN_40_DMZ {
-        default-action drop
-        from LAN_20_PRIVATE {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_30_GUEST {
-            firewall {
-                name GUEST_TO_PRIVATE
-            }
-        }
-        from LAN_50_VPN {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LOCAL {
-            firewall {
-                name ACCEPT_PING_AND_MDNS
-            }
-        }
-        from WAN {
-            firewall {
-                name WAN_TO_DMZ
-            }
-        }
-        interface eth0.40
-    }
-    zone LAN_50_VPN {
-        default-action drop
-        from LAN_00_DEFAULT {
-            firewall {
-                name DROP_EXCEPT_ESTABLISHED
-            }
-        }
-        from LAN_30_GUEST {
-            firewall {
-                name DROP_EXCEPT_ESTABLISHED
-            }
-        }
-        from LAN_40_DMZ {
-            firewall {
-                name DROP_EXCEPT_ESTABLISHED
-            }
-        }
-        from LOCAL {
-            firewall {
-                name ACCEPT_PING_AND_MDNS
-            }
-        }
-        from WAN {
-            firewall {
-                name DROP_EXCEPT_ESTABLISHED
-            }
-        }
-        interface vtun0
-    }
     zone LOCAL {
         default-action drop
         from LAN_00_DEFAULT {
             firewall {
-                name ACCEPT_NETWORKING_AND_MGMT
+                name ACCEPT_NETWORKING_AND_WEBFACE
             }
         }
         from LAN_20_PRIVATE {
             firewall {
-                name ACCEPT_NETWORKING_AND_MGMT
+                name ACCEPT_ALL
             }
         }
         from LAN_30_GUEST {
             firewall {
-                name ACCEPT_NETWORKING_AND_MDNS
-            }
-        }
-        from LAN_40_DMZ {
-            firewall {
-                name ACCEPT_NETWORKING_AND_MDNS
-            }
-        }
-        from LAN_50_VPN {
-            firewall {
-                name ACCEPT_NETWORKING_AND_MGMT
+                name ACCEPT_NETWORKING
             }
         }
         from WAN {
             firewall {
-                name WAN_TO_LOCAL
+                name DROP_EXCEPT_ESTABLISHED
             }
         }
         local-zone
@@ -986,16 +752,6 @@ zone-policy {
             }
         }
         from LAN_30_GUEST {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_40_DMZ {
-            firewall {
-                name ACCEPT_ALL
-            }
-        }
-        from LAN_50_VPN {
             firewall {
                 name ACCEPT_ALL
             }
