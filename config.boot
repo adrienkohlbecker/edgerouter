@@ -656,7 +656,7 @@ zone-policy {
         }
         from LOCAL {
             firewall {
-                name ACCEPT_PING
+                name ACCEPT_PING_AND_MDNS
             }
         }
         from WAN {
