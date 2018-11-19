@@ -502,6 +502,7 @@ service {
                     ip-address 10.123.0.2
                     mac-address b8:27:eb:ff:5a:e9
                 }
+                unifi-controller 10.123.0.11
             }
         }
         shared-network-name LAN_20_PRIVATE {
@@ -524,6 +525,10 @@ service {
                 lease 86400
                 start 10.123.30.100 {
                     stop 10.123.30.200
+                }
+                static-mapping homelab {
+                    ip-address 10.123.30.12
+                    mac-address 00:25:90:86:77:89
                 }
                 static-mapping printer {
                     ip-address 10.123.30.4
